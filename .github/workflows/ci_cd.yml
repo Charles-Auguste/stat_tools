@@ -12,7 +12,6 @@ env:
   PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
   POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
   POETRY_VIRTUALENVS_IN_PROJECT: "false"
-  PYTHON_VERSION: "3.10"
   POETRY_VERSION: "1.4.0"
 
 jobs:
@@ -20,7 +19,7 @@ jobs:
     name: Quality Check
     runs-on: ubuntu-latest
     container:
-      image: python:${{ env.PYTHON_VERSION }}-slim
+      image: python:3.10-slim  # Hardcoded instead of using env variable
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -35,7 +34,7 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     container:
-      image: python:${{ env.PYTHON_VERSION }}-slim
+      image: python:3.10-slim  # Hardcoded instead of using env variable
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -59,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [quality-check, unit-tests]
     container:
-      image: python:${{ env.PYTHON_VERSION }}-slim
+      image: python:3.10-slim  # Hardcoded instead of using env variable
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -79,4 +78,3 @@ jobs:
         run: |
           poetry config repositories.gitlab ${{ secrets.CI_API_V4_URL }}/projects/${{ secrets.CI_PROJECT_ID }}/packages/pypi
           poetry publish --repository gitlab -u gitlab-ci-token -p ${{ secrets.CI_JOB_TOKEN }}
-
