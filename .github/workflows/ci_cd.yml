@@ -80,14 +80,12 @@ jobs:
       - name: Configure Poetry
         run: |
           poetry config virtualenvs.create false
+          poetry config repositories.github "https://npm.pkg.github.com"
+          poetry config http-basic.github ${{ github.actor }} ${{ secrets.GITHUB_TOKEN }}
           poetry install --no-interaction --no-root
 
       - name: Build Package
         run: poetry build
 
       - name: Publish to GitHub Packages
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: "https://upload.pypi.org/legacy/"
-          user: "__token__"
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        run: poetry publish -r github
