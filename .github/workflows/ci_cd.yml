@@ -58,34 +58,3 @@ jobs:
           poetry run coverage run -m pytest
           poetry run coverage report
           poetry run coverage xml
-
-  deploy-package:
-    name: Deploy to GitHub Packages
-    runs-on: ubuntu-latest
-    needs: [quality-check, unit-tests]
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set Up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        run: |
-          pip install poetry
-          poetry --version
-
-      - name: Configure Poetry
-        run: |
-          poetry config virtualenvs.create false
-          poetry config repositories.github "https://pypi.pkg.github.com/${{ github.repository_owner }}"
-          poetry config http-basic.github ${{ github.actor }} ${{ secrets.GITHUB_TOKEN }}
-          poetry install --no-interaction --no-root
-
-      - name: Build Package
-        run: poetry build
-
-      - name: Publish to GitHub Packages
-        run: poetry publish -r github
