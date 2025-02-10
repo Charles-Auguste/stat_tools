@@ -80,7 +80,7 @@ jobs:
       - name: Configure Poetry
         run: |
           poetry config virtualenvs.create false
-          poetry config repositories.github "https://npm.pkg.github.com"
+          poetry config repositories.github "https://pypi.pkg.github.com/${{ github.repository_owner }}"
           poetry config http-basic.github ${{ github.actor }} ${{ secrets.GITHUB_TOKEN }}
           poetry install --no-interaction --no-root
 
