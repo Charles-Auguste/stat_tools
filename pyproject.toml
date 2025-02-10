@@ -59,6 +59,3 @@ show_missing = true
 
 [tool.coverage.xml]
 output = "pkg_coverage.xml"
-
-[tool.poetry.repositories]
-github = "https://npm.pkg.github.com"
