@@ -44,9 +44,9 @@ jobs:
           apt update && apt install -y curl
           curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="/github/home/.local/bin:$PATH"
           poetry config virtualenvs.create false
           poetry install
-          export PATH="/github/home/.local/bin:$PATH"
       
       - name: Run Unit Tests with Coverage
         run: |
@@ -69,9 +69,9 @@ jobs:
           apt update && apt install -y curl
           curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="/github/home/.local/bin:$PATH"
           poetry config virtualenvs.create false
           poetry install
-          export PATH="/github/home/.local/bin:$PATH"
       
       - name: Build Package
         run: poetry build
