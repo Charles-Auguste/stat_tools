@@ -2,7 +2,7 @@
 name = "stat_tools"
 version = "0.1.0"
 description = "Stat Tools project - ForvisMazars"
-authors = ["Charles-Auguste <charles-auguste.gourio@mazars.co.uk>"]
+authors = ["Charles-Auguste <charles-auguste.gourio@enpc.fr>"]
 readme = "README.md"
 packages = [
     { include = "stat_tools" },
