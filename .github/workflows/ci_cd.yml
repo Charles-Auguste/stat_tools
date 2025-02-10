@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,45 +9,50 @@ on:
       - master
 
 env:
-  PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
-  POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/pypoetry
-  POETRY_VIRTUALENVS_IN_PROJECT: "false"
+  PYTHON_VERSION: "3.10"
   POETRY_VERSION: "1.4.0"
 
 jobs:
   quality-check:
     name: Quality Check
     runs-on: ubuntu-latest
-    container:
-      image: python:3.10-slim  # Hardcoded instead of using env variable
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Install Flake8
         run: pip install flake8
-      
+
       - name: Run Flake8
         run: flake8 .
-  
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    container:
-      image: python:3.10-slim  # Hardcoded instead of using env variable
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Install Poetry
         run: |
-          apt update && apt install -y curl
-          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export PATH="/github/home/.local/bin:$PATH"
+          pip install poetry
+          poetry --version
+
+      - name: Configure Poetry
+        run: |
           poetry config virtualenvs.create false
-          poetry install
-      
+          poetry install --no-interaction --no-root
+
       - name: Run Unit Tests with Coverage
         run: |
           poetry run coverage run -m pytest
@@ -55,28 +60,34 @@ jobs:
           poetry run coverage xml
 
   deploy-package:
-    name: Deploy Package
+    name: Deploy to GitHub Packages
     runs-on: ubuntu-latest
     needs: [quality-check, unit-tests]
-    container:
-      image: python:3.10-slim  # Hardcoded instead of using env variable
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Install Poetry
         run: |
-          apt update && apt install -y curl
-          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export PATH="/github/home/.local/bin:$PATH"
+          pip install poetry
+          poetry --version
+
+      - name: Configure Poetry
+        run: |
           poetry config virtualenvs.create false
-          poetry install
-      
+          poetry install --no-interaction --no-root
+
       - name: Build Package
         run: poetry build
-      
-      - name: Publish Package
-        run: |
-          poetry config repositories.gitlab ${{ secrets.CI_API_V4_URL }}/projects/${{ secrets.CI_PROJECT_ID }}/packages/pypi
-          poetry publish --repository gitlab -u gitlab-ci-token -p ${{ secrets.CI_JOB_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: "https://upload.pypi.org/legacy/"
+          username: "__token__"
+          password: ${{ secrets.PYPI_API_TOKEN }}
