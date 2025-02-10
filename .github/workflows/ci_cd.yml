@@ -46,6 +46,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           poetry config virtualenvs.create false
           poetry install
+          export PATH="/github/home/.local/bin:$PATH"
       
       - name: Run Unit Tests with Coverage
         run: |
@@ -70,6 +71,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           poetry config virtualenvs.create false
           poetry install
+          export PATH="/github/home/.local/bin:$PATH"
       
       - name: Build Package
         run: poetry build
